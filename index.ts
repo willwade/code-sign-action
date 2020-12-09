@@ -69,7 +69,7 @@ function setOutputSignCmd() {
 
     if (sign_args) {
         core.warning(`override default sign args`);
-        cmd = `"${signtool}" sign /f ${certificateFileName} ${sign_args}}`;
+        cmd = `"${signtool}" sign /f ${certificateFileName} ${sign_args} `;
     }
 
     core.setOutput("signtoolCmd", cmd);
