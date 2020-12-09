@@ -59,20 +59,26 @@ async function downloadNuGet() {
     });
 }
 
+function setOutputSignCmd() {
+    const sign_args = core.getInput('sign_args');
+    let cmd = `"${signtool}" `
+        .concat(`sign /f ${certificateFileName} `)
+        .concat(`/tr ${timestampUrl} `)
+        .concat(`/v `)
+        .concat(`/fd sha256 `);
+
+    if (sign_args) {
+        core.warning(`override default sign args`);
+        cmd = `"${signtool}" sign /f ${certificateFileName} ${sign_args}}`;
+    }
+
+    core.setOutput("signtoolCmd", cmd);
+    return cmd;
+}
+
 async function signWithSigntool(fileName: string) {
     try {
-        const sign_args = core.getInput('sign_args');
-        let cmd = `"${signtool}" `
-            .concat(`sign /f ${certificateFileName} `)
-            .concat(`/tr ${timestampUrl} `)
-            .concat(`/v `)
-            .concat(`/fd sha256 ${fileName} `);
-// const { stdout } = await asyncExec(`"${signtool}" sign /f ${certificateFileName} /tr ${timestampUrl} /td sha256 /fd sha256 ${fileName}`);
-        if (sign_args) {
-            console.log(`override default sign args`);
-            cmd = `"${signtool}" sign /f ${certificateFileName} ${sign_args} ${fileName}`;
-        }
-
+        const cmd = setOutputSignCmd() + ` ${fileName}`;
         const {stdout} = await asyncExec(cmd.toString());
         console.log(stdout);
         return true;
@@ -84,6 +90,7 @@ async function signWithSigntool(fileName: string) {
     }
 }
 
+//TODO add support to set sign NUGET later
 async function signNupkg(fileName: string) {
     await downloadNuGet();
 
@@ -131,10 +138,15 @@ async function* getFiles(folder: string, recursive: boolean): any {
 }
 
 async function signFiles() {
-    const folder = core.getInput('folder', {required: true});
-    const recursive = core.getInput('recursive')=='true';
-    for await (const file of getFiles(folder, recursive)) {
-        await trySignFile(file);
+    const folder = core.getInput('folder');
+    if (folder) {
+        const recursive = core.getInput('recursive')=='true';
+        for await (const file of getFiles(folder, recursive)) {
+            await trySignFile(file);
+        }
+    }
+    else {
+        setOutputSignCmd();
     }
 }
 
