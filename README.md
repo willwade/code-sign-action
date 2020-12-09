@@ -1,29 +1,7 @@
 # Code sign a file
 
-This action signs `.nupkg` files and files that are supported by `signtool.exe` with a code signing certificate. This action only works on Windows and that means it should run on `windows-latest`.
+Fork https://github.com/dlemstra/code-sign-action + add some more features
 
 ## Inputs
 
-### `certificate`
-
-**Required** The base64 encoded certificate.
-
-### `folder`
-
-**Required** The folder that contains the libraries to sign.
-
-### `recursive`
-
-**Optional** Recursively search for DLL files.
-
-## Example usage
-
-```
-runs-on: windows-latest
-steps:
-  uses: dlemstra/code-sign-action@v1
-  with:
-    certificate: '${{ secrets.CERTIFICATE }}'
-    folder: 'files'
-    recursive: true
-```
+See [action.yml](https://github.com/phuonghuynh/code-sign-action/blob/master/action.yml)
