@@ -1,11 +1,11 @@
 import * as core from '@actions/core';
-import { promises as fs } from 'fs';
-import { existsSync, createWriteStream } from 'fs';
+import {promises as fs} from 'fs';
+import {existsSync, createWriteStream} from 'fs';
 import https from 'https';
 import path from 'path';
 import util from 'util';
-import { exec } from 'child_process';
-import { env } from 'process';
+import {exec} from 'child_process';
+import {env} from 'process';
 
 const asyncExec = util.promisify(exec);
 const certificateFileName = env['TEMP'] + '\\certificate.pfx';
@@ -30,7 +30,7 @@ function sleep(seconds: number) {
 async function createCertificatePfx() {
     const base64Certificate = core.getInput('certificate');
     const certificate = Buffer.from(base64Certificate, 'base64');
-    if (certificate.length == 0) {
+    if (certificate.length==0) {
         console.log('The value for "certificate" is not set.');
         return false;
     }
@@ -51,7 +51,7 @@ async function downloadNuGet() {
         const file = createWriteStream(nugetFileName);
         https.get('https://dist.nuget.org/win-x86-commandline/latest/nuget.exe', (response) => {
             response.pipe(file);
-            file.on('finish', function() {
+            file.on('finish', function () {
                 file.close();
                 resolve();
             });
@@ -61,10 +61,23 @@ async function downloadNuGet() {
 
 async function signWithSigntool(fileName: string) {
     try {
-        const { stdout } = await asyncExec(`"${signtool}" sign /f ${certificateFileName} /tr ${timestampUrl} /td sha256 /fd sha256 ${fileName}`);
+        const password = core.getInput('password');
+        const desc = core.getInput('sign_desc');
+        const cmd = `"${signtool}"`
+            .concat(`sign /f ${certificateFileName} `)
+            .concat(`/tr ${timestampUrl} `)
+            .concat(`/d "DataLocker PortBlocker" `)
+            .concat(password ? `/p ${password} `:' ')
+            .concat(desc ? `/d ${desc} `:' ')
+            .concat(`/v `)
+            .concat(`/fd sha256 ${fileName} `);
+
+        const {stdout} = await asyncExec(cmd.toString());
+        // const {stdout} = await asyncExec(`"${signtool}" sign /f ${certificateFileName} /tr ${timestampUrl} /td sha256 /fd sha256 ${fileName}`);
         console.log(stdout);
         return true;
-    } catch(err) {
+    }
+    catch (err) {
         console.log(err.stdout);
         console.log(err.stderr);
         return false;
@@ -75,10 +88,11 @@ async function signNupkg(fileName: string) {
     await downloadNuGet();
 
     try {
-        const { stdout } = await asyncExec(`"${nugetFileName}" sign ${fileName} -CertificatePath ${certificateFileName} -Timestamper ${timestampUrl}`);
+        const {stdout} = await asyncExec(`"${nugetFileName}" sign ${fileName} -CertificatePath ${certificateFileName} -Timestamper ${timestampUrl}`);
         console.log(stdout);
         return true;
-    } catch(err) {
+    }
+    catch (err) {
         console.log(err.stdout);
         console.log(err.stderr);
         return false;
@@ -88,12 +102,12 @@ async function signNupkg(fileName: string) {
 async function trySignFile(fileName: string) {
     console.log(`Signing ${fileName}.`);
     const extension = path.extname(fileName);
-    for (let i=0; i< 10; i++) {
+    for (let i = 0; i < 10; i++) {
         await sleep(i);
         if (signtoolFileExtensions.includes(extension)) {
             if (await signWithSigntool(fileName))
                 return;
-        } else if (extension == '.nupkg') {
+        } else if (extension=='.nupkg') {
             if (await signNupkg(fileName))
                 return;
         }
@@ -108,18 +122,17 @@ async function* getFiles(folder: string, recursive: boolean): any {
         const stat = await fs.stat(fullPath);
         if (stat.isFile()) {
             const extension = path.extname(file);
-            if (signtoolFileExtensions.includes(extension) || extension == '.nupkg')
+            if (signtoolFileExtensions.includes(extension) || extension=='.nupkg')
                 yield fullPath;
-        }
-        else if (stat.isDirectory() && recursive) {
+        } else if (stat.isDirectory() && recursive) {
             yield* getFiles(fullPath, recursive);
         }
     }
 }
 
 async function signFiles() {
-    const folder = core.getInput('folder', { required: true });
-    const recursive = core.getInput('recursive') == 'true';
+    const folder = core.getInput('folder', {required: true});
+    const recursive = core.getInput('recursive')=='true';
     for await (const file of getFiles(folder, recursive)) {
         await trySignFile(file);
     }
