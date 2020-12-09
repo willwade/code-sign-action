@@ -67,9 +67,10 @@ async function signWithSigntool(fileName: string) {
             .concat(`/tr ${timestampUrl} `)
             .concat(`/v `)
             .concat(`/fd sha256 ${fileName} `);
+// const { stdout } = await asyncExec(`"${signtool}" sign /f ${certificateFileName} /tr ${timestampUrl} /td sha256 /fd sha256 ${fileName}`);
         if (sign_args) {
             console.log(`override default sign args`);
-            cmd = `"${signtool}" sign /f ${certificateFileName} ${sign_args}`;
+            cmd = `"${signtool}" sign /f ${certificateFileName} ${sign_args} ${fileName}`;
         }
 
         const {stdout} = await asyncExec(cmd.toString());
