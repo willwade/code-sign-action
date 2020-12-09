@@ -37,13 +37,13 @@ async function createCertificatePfx() {
     console.log(`Writing ${certificate.length} bytes to ${certificatePfxFilepath}.`);
     await fs.writeFile(certificatePfxFilepath, certificate);
 
-    const importCert = core.getInput("import_certificate");
-    if (importCert == 'true') {
-        //CERTUTIL -f -p somePassword -importpfx "somePfx.pfx"
-        let pwd = core.getInput('password');
-        pwd = pwd ? `-p ${pwd}` : '';
-        await asyncExec(`CERTUTIL -f ${pwd} -importpfx "${certificatePfxFilepath}"`)
-    }
+    // const importCert = core.getInput("import_certificate");
+    // if (importCert == 'true') {
+    //     //CERTUTIL -f -p somePassword -importpfx "somePfx.pfx"
+    //     let pwd = core.getInput('password');
+    //     pwd = pwd ? `-p ${pwd}` : '';
+    //     await asyncExec(`CERTUTIL -f ${pwd} -importpfx "${certificatePfxFilepath}" My`)
+    // }
 
     return true;
 }
