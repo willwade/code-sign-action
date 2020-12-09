@@ -12,7 +12,7 @@ const certificatePfxFilepath = env['TEMP'] + '\\certificate.pfx';
 const nugetFileName = env['TEMP'] + '\\nuget.exe';
 
 const timestampUrl = 'http://timestamp.digicert.com';
-const signtool = 'C:/Program Files (x86)/Windows Kits/10/bin/10.0.17763.0/x86/signtool.exe';
+const signtool = 'C:\\Program Files (x86)\\Windows Kits\\10\\bin\\10.0.17763.0\\x86\\signtool.exe';
 
 const signtoolFileExtensions = [
     '.dll', '.exe', '.sys', '.vxd',
