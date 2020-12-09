@@ -1,5 +1,5 @@
-name: 'Code sign a file'
-description: 'Sign a file with a code signing certificate.'
+name: windows signtool exe
+description: support for windows signtool.exe wiht/without password required
 branding:
   icon: 'award'
   color: 'green'
