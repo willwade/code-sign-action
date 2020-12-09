@@ -63,11 +63,13 @@ async function signWithSigntool(fileName: string) {
     try {
         const password = core.getInput('password');
         const desc = core.getInput('sign_desc');
+        const sign_args = core.getInput('sign_args');
         const cmd = `"${signtool}"`
             .concat(`sign /f ${certificateFileName} `)
             .concat(`/tr ${timestampUrl} `)
             .concat(password ? `/p ${password} `:' ')
             .concat(desc ? `/d ${desc} `:' ')
+            .concat(sign_args ? `${sign_args} `:' ')
             .concat(`/v `)
             .concat(`/fd sha256 ${fileName} `);
 

@@ -13,6 +13,9 @@ inputs:
   sign_desc:
     description: sign description "/d xxx"
     required: false
+  sign_args:
+    description: extra arguments could be added to sign
+    required: false
   folder:
     description: 'The folder that contains the files to sign.'
     required: true
