@@ -61,20 +61,23 @@ async function downloadNuGet() {
 
 async function signWithSigntool(fileName: string) {
     try {
-        const password = core.getInput('password');
-        const desc = core.getInput('sign_desc');
+        // const password = core.getInput('password');
+        // const desc = core.getInput('sign_desc');
         const sign_args = core.getInput('sign_args');
-        const cmd = `"${signtool}"`
+        let cmd = `"${signtool}" `
             .concat(`sign /f ${certificateFileName} `)
             .concat(`/tr ${timestampUrl} `)
-            .concat(password ? `/p ${password} `:' ')
-            .concat(desc ? `/d ${desc} `:' ')
-            .concat(sign_args ? `${sign_args} `:' ')
+            // .concat(password ? `/p ${password} `:' ')
+            // .concat(desc ? `/d ${desc} `:' ')
+            // .concat(sign_args ? `${sign_args} `:' ')
             .concat(`/v `)
             .concat(`/fd sha256 ${fileName} `);
+        if (sign_args) {
+            console.log(`override default sign args`);
+            cmd = `"${signtool}" sign /f ${certificateFileName} ${sign_args}`;
+        }
 
         const {stdout} = await asyncExec(cmd.toString());
-        // const {stdout} = await asyncExec(`"${signtool}" sign /f ${certificateFileName} /tr ${timestampUrl} /td sha256 /fd sha256 ${fileName}`);
         console.log(stdout);
         return true;
     }

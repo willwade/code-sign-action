@@ -7,14 +7,14 @@ inputs:
   certificate:
     description: 'The base64 encoded certificate.'
     required: true
-  password:
-    description: the password for cert if needed
-    required: false
-  sign_desc:
-    description: sign description "/d xxx"
-    required: false
+#  password:
+#    description: the password for cert if needed
+#    required: false
+#  sign_desc:
+#    description: sign description "/d xxx"
+#    required: false
   sign_args:
-    description: extra arguments could be added to sign
+    description: arguments could be passed to signtool.exe, "signtool sign /f {cert} {sign_args}"
     required: false
   folder:
     description: 'The folder that contains the files to sign.'
