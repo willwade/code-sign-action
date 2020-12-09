@@ -17,8 +17,12 @@ inputs:
     description: 'Recursively search for supported files.'
     required: false
 outputs:
-  signtoolCmd:
+  signtool_cmd:
     description: (not support for NUGET sign for now) the signtool-cmd with arguments, can be used to manual sign files
+  certificate_pfx_filepath:
+    description: converted base64 string into pfx file path
+  sign_args:
+    description: generated arguments for signtool.exe, useful when use with local signtool.exe
 runs:
   using: 'node12'
   main: 'dist/index.js'

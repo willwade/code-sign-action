@@ -8,7 +8,7 @@ import {exec} from 'child_process';
 import {env} from 'process';
 
 const asyncExec = util.promisify(exec);
-const certificateFileName = env['TEMP'] + '\\certificate.pfx';
+const certificatePfxFilepath = env['TEMP'] + '\\certificate.pfx';
 const nugetFileName = env['TEMP'] + '\\nuget.exe';
 
 const timestampUrl = 'http://timestamp.digicert.com';
@@ -34,8 +34,8 @@ async function createCertificatePfx() {
         console.log('The value for "certificate" is not set.');
         return false;
     }
-    console.log(`Writing ${certificate.length} bytes to ${certificateFileName}.`);
-    await fs.writeFile(certificateFileName, certificate);
+    console.log(`Writing ${certificate.length} bytes to ${certificatePfxFilepath}.`);
+    await fs.writeFile(certificatePfxFilepath, certificate);
     return true;
 }
 
@@ -60,19 +60,22 @@ async function downloadNuGet() {
 }
 
 function setOutputSignCmd() {
-    const sign_args = core.getInput('sign_args');
+    let sign_args = core.getInput('sign_args');
     let cmd = `"${signtool}" `
-        .concat(`sign /f ${certificateFileName} `)
+        .concat(`sign /f ${certificatePfxFilepath} `)
         .concat(`/tr ${timestampUrl} `)
         .concat(`/v `)
         .concat(`/fd sha256 `);
 
     if (sign_args) {
-        core.warning(`override default sign args`);
-        cmd = `"${signtool}" sign /f ${certificateFileName} ${sign_args} `;
+        core.debug(`override default sign args`);
+        sign_args = `sign /f ${certificatePfxFilepath} ${sign_args} `;
+        cmd = `"${signtool}" sign /f ${certificatePfxFilepath} ${sign_args} `;
     }
 
-    core.setOutput("signtoolCmd", cmd);
+    core.setOutput("signtool_cmd", cmd);
+    core.setOutput("certificate_pfx_filepath", certificatePfxFilepath);
+    core.setOutput("sign_args", sign_args);
     return cmd;
 }
 
@@ -95,7 +98,7 @@ async function signNupkg(fileName: string) {
     await downloadNuGet();
 
     try {
-        const {stdout} = await asyncExec(`"${nugetFileName}" sign ${fileName} -CertificatePath ${certificateFileName} -Timestamper ${timestampUrl}`);
+        const {stdout} = await asyncExec(`"${nugetFileName}" sign ${fileName} -CertificatePath ${certificatePfxFilepath} -Timestamper ${timestampUrl}`);
         console.log(stdout);
         return true;
     }
