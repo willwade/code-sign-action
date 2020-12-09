@@ -7,6 +7,12 @@ inputs:
   certificate:
     description: 'The base64 encoded certificate.'
     required: true
+  password:
+    description: 'The password of certificate.'
+    required: false
+  import_certificate:
+    description: "true" is import certificate using CERTUTIL
+    required: false
   sign_args:
     description: arguments could be passed to signtool.exe, "signtool sign /f {cert} {sign_args}"
     required: false
