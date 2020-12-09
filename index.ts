@@ -66,7 +66,6 @@ async function signWithSigntool(fileName: string) {
         const cmd = `"${signtool}"`
             .concat(`sign /f ${certificateFileName} `)
             .concat(`/tr ${timestampUrl} `)
-            .concat(`/d "DataLocker PortBlocker" `)
             .concat(password ? `/p ${password} `:' ')
             .concat(desc ? `/d ${desc} `:' ')
             .concat(`/v `)
